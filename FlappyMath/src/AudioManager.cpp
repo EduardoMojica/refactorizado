@@ -3,21 +3,22 @@
 
 AudioManager::AudioManager() {}
 
-AudioManager::~AudioManager() {
-    UnloadSounds();
+AudioManager& AudioManager::getInstance() {
+    static AudioManager instance;
+    return instance;
 }
 
 void AudioManager::loadSounds() {
     // Load sound assets
-    soundJump = LoadSound("assets/audio/wing.wav");
-    soundHit = LoadSound("assets/audio/hit.wav");
+    sounds["jump"] = LoadSound("assets/audio/wing.wav");
+    sounds["score"] = LoadSound("assets/audio/point.wav");
+    sounds["hit"] = LoadSound("assets/audio/hit.wav");
     soundDie = LoadSound("assets/audio/die.wav");
-    soundPoint = LoadSound("assets/audio/point.wav");
     musicBackground = LoadMusicStream("assets/audio/musicita.mp3");
 }
 
-void AudioManager::playSound(Sound sound) {
-    PlaySound(sound);
+void AudioManager::playSound(const std::string& name) {
+    if (sounds.count(name)) PlaySound(sounds[name]);
 }
 
 void AudioManager::playMusic() {
@@ -32,10 +33,9 @@ void AudioManager::updateMusic() {
     UpdateMusicStream(musicBackground);
 }
 
-void AudioManager::UnloadSounds() {
-    UnloadSound(soundJump);
-    UnloadSound(soundHit);
-    UnloadSound(soundDie);
-    UnloadSound(soundPoint);
-    UnloadMusicStream(musicBackground);
+void AudioManager::unloadSounds() {
+    for (auto& pair : sounds) {
+        UnloadSound(pair.second);
+    }
+    sounds.clear();
 }

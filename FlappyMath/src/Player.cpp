@@ -1,31 +1,27 @@
 #include "Player.h"
-#include "raylib.h"
+#include "ResourceManager.h"
+#include "AudioManager.h"
+#include "utils.h"
 
-Player::Player(Vector2 position, float radius, Texture2D texture)
-    : position(position), radius(radius), velocityY(0), texture(texture) {}
-
-void Player::jump() {
-    velocityY = JUMP_SPEED;
-}
+Player::Player() : x(200), y(SCREEN_HEIGHT / 2), velocity(0) {}
 
 void Player::update() {
-    velocityY += GRAVITY;
-    position.y += velocityY;
-
-    if (position.y + radius > GetScreenHeight() || position.y - radius < 0) {
-        // Handle collision with screen boundaries
-        position.y = Clamp(position.y, radius, GetScreenHeight() - radius);
-    }
+    velocity += GRAVITY;
+    y += velocity;
+    if (y < 0) y = 0;
+    if (y > SCREEN_HEIGHT - 50) y = SCREEN_HEIGHT - 50;
 }
 
 void Player::draw() {
-    DrawTexture(texture, position.x - radius, position.y - radius, WHITE);
+    Texture2D playerTexture = ResourceManager::getInstance().getTexture("player");
+    DrawTexture(playerTexture, x, y, WHITE);
 }
 
-Vector2 Player::getPosition() const {
-    return position;
+void Player::jump() {
+    velocity = JUMP_SPEED;
+    AudioManager::getInstance().playSound("jump");
 }
 
-float Player::getRadius() const {
-    return radius;
+Rectangle Player::getBounds() const {
+    return { x, y, 50, 50 };
 }

@@ -1,6 +1,5 @@
-#ifndef GAME_H
-#define GAME_H
-
+#pragma once
+#include <vector>
 #include "Player.h"
 #include "Pipe.h"
 #include "Operation.h"
@@ -25,17 +24,20 @@ private:
     void checkCollisions();
     void drawGameObjects();
     void drawUI();
+    void spawnPipe();
+    void spawnOperation();
+    void onScore();
 
     int screenWidth;
     int screenHeight;
     Player player;
-    Pipe pipes[2]; // Assuming two pipes for the game
-    Operation operation;
+    std::vector<Pipe> pipes;
+    std::vector<Operation> operations;
     ScoreManager scoreManager;
     AudioManager audioManager;
     ResourceManager resourceManager;
 
+    int score;
     bool isGameOver;
+    bool running;
 };
-
-#endif // GAME_H

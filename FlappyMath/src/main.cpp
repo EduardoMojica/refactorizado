@@ -1,8 +1,25 @@
+#include "raylib.h"
 #include "Game.h"
 
-int main(void)
-{
+int main() {
+    InitWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "FlappyMath");
+    InitAudioDevice();
+
     Game game;
-    game.start();
+    game.init();
+
+    while (!WindowShouldClose()) {
+        BeginDrawing();
+        ClearBackground(RAYWHITE);
+
+        game.update();
+        game.draw();
+
+        EndDrawing();
+    }
+
+    game.cleanup();
+    CloseAudioDevice();
+    CloseWindow();
     return 0;
 }

@@ -1,111 +1,55 @@
 #include "Game.h"
-#include "Player.h"
-#include "Pipe.h"
-#include "Operation.h"
-#include "ScoreManager.h"
-#include "AudioManager.h"
+#include "PipeFactory.h"
+#include "OperationFactory.h"
 #include "ResourceManager.h"
-#include "raylib.h"
-#include <vector>
+#include "AudioManager.h"
+#include "utils.h"
 
-class Game {
-public:
-    Game(int screenWidth, int screenHeight);
-    void start();
-    void update();
-    void draw();
-    void reset();
+Game::Game() : score(0), running(true) {}
 
-private:
-    int screenWidth;
-    int screenHeight;
-    Player player;
-    std::vector<Pipe> pipes;
-    Operation operation;
-    ScoreManager scoreManager;
-    AudioManager audioManager;
-    ResourceManager resourceManager;
-    bool gameOver;
-    void initialize();
-    void handleInput();
-    void updatePipes();
-    void checkCollisions();
-    void drawGameObjects();
-};
-
-Game::Game(int screenWidth, int screenHeight)
-    : screenWidth(screenWidth), screenHeight(screenHeight), player(screenWidth / 2.0f, screenHeight / 2.0f), gameOver(false) {
-    initialize();
-}
-
-void Game::initialize() {
-    resourceManager.loadTextures();
-    audioManager.loadSounds();
-    operation.generate();
-    scoreManager.loadHighScore();
-}
-
-void Game::start() {
-    while (!WindowShouldClose()) {
-        update();
-        draw();
-    }
+void Game::init() {
+    ResourceManager::getInstance().loadTextures();
+    AudioManager::getInstance().loadSounds();
+    pipes.clear();
+    operations.clear();
+    score = 0;
+    running = true;
+    player = Player();
+    spawnPipe();
+    spawnOperation();
 }
 
 void Game::update() {
-    if (!gameOver) {
-        handleInput();
-        player.update();
-        updatePipes();
-        checkCollisions();
-    }
+    if (!running) return;
+    player.update();
+    for (auto& pipe : pipes) pipe.update();
+    // Lógica de colisiones, puntaje, etc.
 }
 
 void Game::draw() {
-    BeginDrawing();
-    ClearBackground(RAYWHITE);
-    drawGameObjects();
-    EndDrawing();
-}
-
-void Game::reset() {
-    player.reset();
-    pipes.clear();
-    operation.generate();
-    scoreManager.resetScore();
-    gameOver = false;
-}
-
-void Game::handleInput() {
-    if (IsKeyPressed(KEY_SPACE)) {
-        player.jump();
-        audioManager.playSound("wing");
-    }
-}
-
-void Game::updatePipes() {
-    for (auto& pipe : pipes) {
-        pipe.update();
-        if (pipe.isOffScreen()) {
-            pipe.reset();
-            scoreManager.increaseScore();
-        }
-    }
-}
-
-void Game::checkCollisions() {
-    for (const auto& pipe : pipes) {
-        if (CheckCollisionCircleRec(player.getPosition(), player.getRadius(), pipe.getRectangle())) {
-            gameOver = true;
-            audioManager.playSound("hit");
-        }
-    }
-}
-
-void Game::drawGameObjects() {
+    DrawTexture(ResourceManager::getInstance().getTexture("background"), 0, 0, WHITE);
     player.draw();
-    for (const auto& pipe : pipes) {
-        pipe.draw();
-    }
-    DrawText(TextFormat("Score: %d", scoreManager.getScore()), 10, 10, 20, BLACK);
+    for (auto& pipe : pipes) pipe.draw();
+    // Dibuja operaciones, puntaje, etc.
+}
+
+void Game::cleanup() {
+    ResourceManager::getInstance().unloadTextures();
+    AudioManager::getInstance().unloadSounds();
+}
+
+void Game::spawnPipe() {
+    int x = SCREEN_WIDTH;
+    Pipe newPipe = PipeFactory::createPipe(x);
+    pipes.push_back(newPipe);
+}
+
+void Game::spawnOperation() {
+    Operation op = OperationFactory::createRandomOperation();
+    operations.push_back(op);
+}
+
+void Game::onScore() {
+    AudioManager::getInstance().playSound("score");
+    score++;
 }

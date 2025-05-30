@@ -1,18 +1,12 @@
-#ifndef PIPE_H
-#define PIPE_H
-
+#pragma once
 #include "raylib.h"
 
 class Pipe {
 public:
-    Pipe(float x, float y, float width, float height);
-    void update(float speed);
-    void draw(Texture2D texture);
-    void reset(float x, float y);
-    Rectangle getCollisionRect() const;
-
-private:
-    Rectangle collisionRect;
+    Pipe(int x, int gapY);
+    void update();
+    void draw();
+    Rectangle getUpperBounds() const;
+    Rectangle getLowerBounds() const;
+    int x, gapY;
 };
-
-#endif // PIPE_H

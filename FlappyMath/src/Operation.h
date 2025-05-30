@@ -2,24 +2,15 @@
 #define OPERATION_H
 
 #include <string>
-#include <random>
 
 class Operation {
 public:
-    Operation();
-    void generate();
-    float getCorrectAnswer() const;
-    float getIncorrectAnswer() const;
-    std::string getOperationString() const;
-
+    Operation(int a, int b, char op);
+    std::string getText() const;
+    int getResult() const;
 private:
-    int number1;
-    int number2;
-    char operatorSymbol;
-    float correctAnswer;
-    float incorrectAnswer;
-
-    float generateIncorrectAnswer() const;
+    int a, b;
+    char op;
 };
 
-#endif // OPERATION_H
+#endif 
